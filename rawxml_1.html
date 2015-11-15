@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<!--
+
+PURPOSE
+
+	Demonstrates a JavaScript based connection directly to FileMaker Server's XML interface.
+
+NOTES
+
+	Since we are connecting to the FMServer_Sample file, which by default has guest access enabled,
+	we do not need to authenticate when making the XML request.
+
+	Since this is an asyncrhonous request, it would be possible to show a progress bar.
+
+HISTORY
+
+	2015-01-20 simon_b: created file
+	2015-01-24 simon_b: added error handling
+	2015-11-15 simon_b: minor edits
+-->
+
+<head>
+<title>Raw XML Example  1</title>
+
+<script src="vkbeautify.js"></script>
+
+<script>
+
+function xml_to_string(xml_node)
+{
+        if (xml_node.xml)
+            return xml_node.xml;
+        else if (XMLSerializer) {
+            var xml_serializer = new XMLSerializer();
+            //return xml_serializer.serializeToString(xml_node);
+            return vkbeautify.xml (xml_serializer.serializeToString (xml_node));
+        } else {
+		alert("ERROR: Extremely old browser");
+		return "";
+	}
+}
+
+function loadXMLDoc()
+{
+	var xhr;
+
+	// Create a URL string. Doing it in pieces here to call out the components.
+	var qBase="fmi/xml/FMPXMLRESULT.xml";
+	var qDB="?-db=FMServer_Sample";
+	var qLayout="&-lay=Projects";
+	var qAction="&-findall";
+	var qURL= encodeURI (qBase + qDB + qLayout + qAction);
+
+	// Code for IE7+, Firefox, Chrome, Opera, Safari
+	xhr = new XMLHttpRequest();
+
+	// Probably not required for most cases, but helps ensure the XML doesn't get munged.
+	if (xhr.overrideMimeType) {
+		xhr.overrideMimeType('text/xml');
+	}
+
+	xhr.onreadystatechange=function() {
+		// A readyState of 4 indicates the transfer attempt is complete.
+		if (xhr.readyState == 4) {
+			 if (xhr.status == 200) {
+				document.getElementById("xmlText").innerHTML = xml_to_string (xhr.responseXML);
+			} else {
+				alert ("Error #" + xhr.status + ", unable to connect.");
+			}
+		}
+	}
+	// Typically, you would provide the credentials in the 4th & 5th params.
+	// But since the FMServer_Sample file allows guest access by default we don't need this for R/O access.
+	xhr.open("GET",qURL,true);
+	xhr.send();
+}
+
+function handleAction()
+{
+
+	actionButton = document.getElementById("Action");
+
+	if (actionButton.innerText == "Clear Data") {
+		// We can't do a new request until we've cleared out the previous result (something to do with browser cache?).
+		window.location.reload();
+
+		// Change the button title, since next time it will reload data.
+		actionButton.innerText = "Request Data";
+	} else {
+		loadXMLDoc()
+		// Next time user clicks button we'll clear result.
+		actionButton.innerText = "Clear Data";
+	}
+}
+
+</script>
+</head>
+<body>
+
+<h2>JavaScript Access to Raw FileMaker Server XML</h2>
+<button type="button" onclick="handleAction()" id="Action">Request Data</button>
+<br>
+
+<textarea id="xmlText" cols=210 rows=50>
+</textarea>
+
+</body>
+</html>

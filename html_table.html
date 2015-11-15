@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<!--
+
+PURPOSE
+
+        Demonstrates a JavaScript based connection directly FileMaker's XML interface,
+	and converting the result to a HTML table.
+
+NOTES
+
+        Since we are connecting to the FMServer_Sample file, which by default has guest access enabled,
+        we do not need to authenticate when making the XML request.
+
+        As this is an asyncrhonous request, it would be possible to show a progress bar.
+
+HISTORY
+
+        2015-01-20 simon_b: created file
+        2015-01-25 simon_b: added error handling, fixed html
+        2015-11-15 simon_b: minor edits
+-->
+
+<head>
+	<title>HTML Table Example</title>
+</head>
+
+<body>
+
+<script>
+
+function xmlToTable(xmlObj)
+{
+	var rows = xmlObj.getElementsByTagName("ROW");
+	document.write("<br>Found Count: " + rows.length + " records<br><br>\n");
+
+	document.write("<table cellpadding=\"6\"><tr><th>Tag</th><th>Project</th><th>Status</th><th>Created By</th></tr>\n");
+
+	for (i=0; i < rows.length; i++)
+	{
+		var columns = rows[i].getElementsByTagName("COL");
+
+		// For every column skip over COL and DATA to get its text value.
+		document.write("<tr><td>");
+		document.write(columns[1].childNodes[0].childNodes[0].nodeValue);
+		document.write("</td>");
+
+		document.write("<td>");
+		document.write(columns[2].childNodes[0].childNodes[0].nodeValue);
+		document.write("</td>");
+
+		document.write("<td>");
+		document.write(columns[3].childNodes[0].childNodes[0].nodeValue);
+		document.write("</td>");
+
+		document.write("<td>");
+		document.write(columns[4].childNodes[0].childNodes[0].nodeValue);
+		document.write("</td></tr>");
+	}
+	document.write("</table>");
+}
+
+function loadXMLDoc()
+{
+	var xhr;
+
+	// Create a URL string. Doing it in pieces here to call out the components.
+	qBase="fmi/xml/FMPXMLRESULT.xml";
+	qDB="?-db=FMServer_Sample";
+	qLayout="&-lay=Projects";
+	qAction="&-findall";
+	var qURL= encodeURI (qBase + qDB + qLayout + qAction);
+
+	// code for IE7+, Firefox, Chrome, Opera, Safari
+	xhr = new XMLHttpRequest();
+
+	// Probably not required for most cases, but helps ensure the XML doesn't get munged.
+	if (xhr.overrideMimeType) {
+		xhr.overrideMimeType('text/xml');
+	}
+
+	// We use a synchronous request this time, so no callback function..
+	xhr.open("GET",qURL,false);
+	xhr.send();
+
+	xmlToTable (xhr.responseXML)
+}
+
+</script>
+
+<h2>JavaScript Based Access to FileMaker XML as HTML Table</h2>
+<button type="button" onclick="loadXMLDoc()">Load Page</button>
+<br>
+
+
+</body>
+</html>
