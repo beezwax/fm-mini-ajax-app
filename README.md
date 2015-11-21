@@ -10,25 +10,24 @@ Uses vkBeautify.js for the two "rawxml" examples, which can be found at https://
 
 To use these files you'd typically install them into one of the directories at:
 
-### Mac OS
+#### Mac OS
 /Libary/FileMaker Server/HTTPServer/htdocs
 /Libary/FileMaker Server/HTTPServer/htdocs/httpsRoot
 
-### Windows
+#### Windows
 C:\Program Files\FileMaker\FileMaker Server\HTTPServer\Conf
 
 ## Files
 
-### rawxml_1.html 
+#### rawxml_1.html 
 
 This file simply dumps the raw XML result for all records in the sample file using the Projects layout. Uses the vkbeautify.js file to format the XML result.
 
-### rawxml_2.html
+#### rawxml_2.html
 
 Building on the previous file, this adds fields where the file name and the layout can be specified.
 
-### html_table.html
+#### html_table.html
 
 Typically, the XML result will need to processed in some way. Here we format some of the fields
 as an HTML table write out the results.
-
